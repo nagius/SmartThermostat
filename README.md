@@ -25,24 +25,24 @@ This sketch is designed to be use with the following hardware :
  - One or more thermal sensors DS18B20
  - One relay or SSR rated for AC load
 
-Make sure this relay can handle the current drawn by your heater. For a 1000W heater under 230V AC, that's almost 5A. I suggest at least a 10A relay or a 20A SSR to be sure (cheap chinese components are ofter over-rated).
-
-See the two KiCad schematics for the detailled wiring : program mode and run mode
-
-See http://www.esp8266.com/wiki/doku.php?id=getting-started-with-the-esp8266 for more detail on ESP8266's wiring.
-See http://andybrown.me.uk/2015/07/24/usb-filtering/ regarging USB +5v filtering.
-
+Make sure this relay can handle the current drawn by your heater. For a 1000W heater under 230V AC, that's almost 5A. I suggest at least a 10A relay or a 20A SSR to be sure (cheap chinese components are often over-rated).
 
 Be careful when plugin the ESP8266 into a serial port, this chip work at 3.3V and most adapter use 5V (like Arduino or FTDI serial adapter).
-If you don't have a USB serial adapter with level shifter, the Raspberri Pi's UART will do fine as it work on 3.3V.
+If you don't have a USB serial adapter with level shifter, the Raspberry Pi's UART will do fine as it work on 3.3V.
 
+### More info
+
+ - KiCad schematics for the detailled wiring : [Flashing mode](docs/flashing-mode.jpg), [Execution mode](docs/execution-mode.jpg).
+ - ESP8266 wiring and bootstrap: http://www.esp8266.com/wiki/doku.php?id=getting-started-with-the-esp8266
+ - USB +5v filtering: http://andybrown.me.uk/2015/07/24/usb-filtering/
 
 ## Tools installation
 
 The compilation of this sketch require the Arduino IDE with the ESP8266 libraries.
-See https://github.com/esp8266/Arduino for the installation steps.
 
-You may also need the esptool CLI, available on [Espressif website](https://github.com/espressif/esptool)
+Refer to the [Arduino core for ESP8266](https://github.com/esp8266/Arduino) for the installation steps.
+
+You may also need the esptool CLI, available on [Espressif website](https://github.com/espressif/esptool).
 
 
 ## Firmware compilation and upload
@@ -80,7 +80,7 @@ The serial communication must be set to `115200 8N1`. Any serial console softwar
 minicom -D /dev/ttyAMA0
 ```
 
-Using the run-mode wiring[link], plug the serial port and power the module, you should see a boot message like this on the console :
+Using the [execution mode](docs/execution-mode.jpg) wiring, plug the serial port and power the module, you should see a boot message like this on the console :
 
 ```
 SmartThermostat v1.0 started.
@@ -109,7 +109,7 @@ curl -X POST -F 'debug=true' http://<esp8266_IP>/settings
 
 SmartThermostat support HTTP Auth Basic authentication (but not https).
 
-By default, there is no login required. Everybody will be able to control your heater.
+By default, there is no login required. Everybody on your network will be able to control your heater.
 To enable authentication, you have to set both settings `login` and `password` :
 
 ```
@@ -133,7 +133,7 @@ You will need to re-upload the firmware after this operation.
 
  - GET /state
 
-Show the current mode, requested target temperature and actual temperature of the room. Temperatures are given in °C with 2 digit precision.
+Show the current mode, requested target temperature and actual temperature of the room. Temperatures are given in °C with 2 digits precision.
 
   * Return "application/json" :
 
@@ -195,8 +195,8 @@ Update requested state. This is volatile and won't be kept after a reboot. At bo
 
    * Parameters :
 
-     - mode : <on|off|pid|hysteresis>
-     - target : <float>
+     - mode : *[on|off|pid|hysteresis]*
+     - target : *[float]*
 
 The mode 'on' switch on the heater regardless of the temperature. The heater may overheat if it doesn't have a thermal safety or a built-in thermostat.
 Target is the requested temperature, in degree Celcius.
@@ -217,17 +217,17 @@ Update configuration settings. This is stored in flash and is kept after a power
 
    * Parameters :
 
-     - hysteresis : <float>	Hysteresis tunning, precision in °C. (default 0.1)
-     - offset : <float>		Offset (in °C) added to the sensor's value for manual calibration. (default 0)
-     - debug : <bool>		Turn on extra logging. (default false)
-     - index : <int>		Sensor's index on the OneWire bus. Used to select active sensor if multiple available. (default 0)
-     - login : <str>		Auth Basic login. (default empty)
-     - password : <str>		Auth Basic password. (default empty)
-     - Kp : <float>		PID tunning, Proportionnal component.
-     - Ki : <float>		PID tunning, Integral component.
-     - Kd : <float>		PID tunning, Derivative component.
-     - ssid : <str>		SSID of the AP to connect to.
-     - key : <str>		WPA2-PSK of the AP to connect to.
+     - hysteresis : *[float]*	Hysteresis tunning, precision in °C. (default 0.1)
+     - offset : *[float]*		Offset (in °C) added to the sensor's value for manual calibration. (default 0)
+     - debug : *[bool]*		Turn on extra logging. (default false)
+     - index : *[int]*		Sensor's index on the OneWire bus. Used to select active sensor if multiple available. (default 0)
+     - login : *[str]*		Auth Basic login. (default empty)
+     - password : *[str]*		Auth Basic password. (default empty)
+     - Kp : *[float]*		PID tunning, Proportionnal component.
+     - Ki : *[float]*		PID tunning, Integral component.
+     - Kd : *[float]*		PID tunning, Derivative component.
+     - ssid : *[str]*		SSID of the AP to connect to.
+     - key : *[str]*		WPA2-PSK of the AP to connect to.
 
 Both 'ssid' and 'key' need a reboot to be applied and connect to the new AP.
 
