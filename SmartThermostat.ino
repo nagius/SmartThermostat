@@ -824,6 +824,7 @@ void setup(void)
   Serial.begin(115200);
   EEPROM.begin(512);
   Serial.println("\r\nSmartThermostat v1.0 started.");
+  WiFi.mode(WIFI_STA);
 
   // Load settigns from flash
   loadSettings();
