@@ -218,16 +218,17 @@ Update configuration settings. This is stored in flash and is kept after a power
    * Parameters :
 
      - hysteresis : *[float]*	Hysteresis tunning, precision in °C. (default 0.1)
-     - offset : *[float]*		Offset (in °C) added to the sensor's value for manual calibration. (default 0)
+     - offset : *[float]*	Offset (in °C) added to the sensor's value for manual calibration. (default 0)
      - debug : *[bool]*		Turn on extra logging. (default false)
      - index : *[int]*		Sensor's index on the OneWire bus. Used to select active sensor if multiple available. (default 0)
      - login : *[str]*		Auth Basic login. (default empty)
-     - password : *[str]*		Auth Basic password. (default empty)
+     - password : *[str]*	Auth Basic password. (default empty)
      - Kp : *[float]*		PID tunning, Proportionnal component.
      - Ki : *[float]*		PID tunning, Integral component.
      - Kd : *[float]*		PID tunning, Derivative component.
      - ssid : *[str]*		SSID of the AP to connect to.
      - key : *[str]*		WPA2-PSK of the AP to connect to.
+     - active : *<high|low>*	GPIO output to the heater. Set according to your wiring. (default low)
 
 Both 'ssid' and 'key' need a reboot to be applied and connect to the new AP.
 

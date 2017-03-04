@@ -1,4 +1,4 @@
-update=jeu. 09 févr. 2017 20:44:29 GMT
+update=sam. 04 mars 2017 18:41:50 GMT
 version=1
 last_client=eeschema
 [cvpcb]
@@ -89,3 +89,4 @@ LibName32=libraries/AMS1117-3.3
 LibName33=libraries/maxim
 LibName34=libraries/relays
 LibName35=libraries/ferrite
+LibName36=libraries/sharp-relay
