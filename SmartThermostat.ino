@@ -90,6 +90,7 @@ struct ST_SETTINGS {
   double Kd;
   char ssid[SSID_LEN];
   char key[KEY_LEN];
+  bool activeHigh;
 };
 
 struct ST_SETTINGS_FLAGS {
@@ -102,6 +103,7 @@ struct ST_SETTINGS_FLAGS {
   bool pid;
   bool ssid;
   bool key;
+  bool activeHigh;
 };
 
 struct ST_PID {
@@ -185,11 +187,12 @@ void handleGETSettings()
  *   - Kd = <float>
  *   - ssid = <str>
  *   - key = <str>
+ *   - active = <high|low>
  */
 void handlePOSTSettings()
 {
   ST_SETTINGS st;
-  ST_SETTINGS_FLAGS isNew = { false, false, false, false, false, false, false, false, false };
+  ST_SETTINGS_FLAGS isNew = { false, false, false, false, false, false, false, false, false, false };
 
   if(!isAuthBasicOK())
     return;
@@ -275,6 +278,25 @@ void handlePOSTSettings()
       server.arg(i).toCharArray(st.key, KEY_LEN);
       isNew.key=true;
     }
+    else if(param == "active")
+    {
+      String active = server.arg(i);
+      if(active == "high")
+      {
+        st.activeHigh = true;
+        isNew.activeHigh = true;
+      }
+      else if (active == "low")
+      {
+        st.activeHigh = false;
+        isNew.activeHigh = true;
+      }
+      else
+      {
+        server.send(400, "text/plain", "Bad value, active must be 'high' or 'low'.\r\n");
+        return;
+      }
+    }
     else
     {
       server.send(400, "text/plain", "Unknown parameter: " + param + "\r\n");
@@ -341,8 +363,14 @@ void handlePOSTSettings()
     logger.info("Updated Key");
   }
 
-  saveSettings(); 
+  if(isNew.activeHigh)
+  {
+    settings.activeHigh = st.activeHigh;
+    logger.info("Updated active to %s", st.activeHigh ? "high" : "low");
+  }
   
+  saveSettings();
+
   // Reply with current settings
   server.send(201, "application/json", getJSONSettings());
 }
@@ -481,6 +509,8 @@ String getJSONSettings()
   json += settings.Kd;
   json += ", \"ssid\": \"";
   json += settings.ssid;
+  json += "\", \"active\": \"";
+  json += settings.activeHigh ? "high" : "low";
   json += "\" }\r\n";
 
   return json;
@@ -594,7 +624,7 @@ void switchOn()
   if(!state.heat)
   {
     state.heat = true;
-    digitalWrite(GPIO_RELAY, LOW);
+    digitalWrite(GPIO_RELAY, settings.activeHigh ? HIGH : LOW);
     logger.info("Heater ON");
   }
 }
@@ -604,7 +634,7 @@ void switchOff()
   if(state.heat)
   {
     state.heat = false;
-    digitalWrite(GPIO_RELAY, HIGH);
+    digitalWrite(GPIO_RELAY, settings.activeHigh ? LOW : HIGH);
     logger.info("Heater OFF");
   }
 }
@@ -749,6 +779,7 @@ void loadSettings()
     settings.Kd = DEFAULT_PID_KD;
     strcpy(settings.ssid, DEFAULT_SSID);
     strcpy(settings.key, DEFAULT_KEY);
+    settings.activeHigh = false;
     saveSettings();
   }
 }
@@ -820,7 +851,6 @@ void setup(void)
 {
   // INIT
   pinMode(GPIO_RELAY, OUTPUT);
-  digitalWrite(GPIO_RELAY, HIGH);
   Serial.begin(115200);
   EEPROM.begin(512);
   Serial.println("\r\nSmartThermostat v1.0 started.");
@@ -828,7 +858,8 @@ void setup(void)
 
   // Load settigns from flash
   loadSettings();
-  
+  digitalWrite(GPIO_RELAY, settings.activeHigh ? LOW : HIGH);
+
   // Init DS18B20
   sensors.begin();
   logger.info("Found %d DS18B20 devices.", sensors.getDeviceCount());
