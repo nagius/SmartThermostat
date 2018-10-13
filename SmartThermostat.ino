@@ -158,6 +158,9 @@ void handleGETDebug()
 {
   String msg = logger.getLog();
   
+  if(!isAuthBasicOK())
+    return;
+
   Serial.print(msg);
   server.send(200, "text/plain", msg);
 }
@@ -922,6 +925,3 @@ void loop(void)
       break;
   }    
 }
-
-
-
